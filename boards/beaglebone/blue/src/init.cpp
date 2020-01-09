@@ -46,11 +46,6 @@
 // initialize roboticscape library similar to the deprecated rc_initialize()
 int rc_init(void)
 {
-#ifdef __RC_V0_3
-	return rc_initialize();
-#else
-#ifdef __DF_BBBLUE
-
 	if (rc_get_state() == RUNNING) {  return 0; }
 
 	PX4_INFO("Initializing librobotcontrol ...");
@@ -64,40 +59,6 @@ int rc_init(void)
 	// start state as Uninitialized
 	rc_set_state(UNINITIALIZED);
 
-	// initialize pinmux
-	/*
-	if (rc_pinmux_set_default()) {
-		PX4_ERR("rc_init failed to run rc_pinmux_set_default()");
-		return -1;
-	}
-	// rc_pinmux_set_default() includes: rc_pinmux_set(DSM_HEADER_PIN, PINMUX_UART);
-	 */
-
-	/*
-	// Due to device tree issue, rc_pinmux_set_default() currently does not work correctly
-	// with kernel 4.14, use a simplified version for now
-	//
-	// shared pins
-	int ret = 0;
-	ret |= rc_pinmux_set(DSM_HEADER_PIN, PINMUX_UART);
-	ret |= rc_pinmux_set(GPS_HEADER_PIN_3, PINMUX_UART);
-	ret |= rc_pinmux_set(GPS_HEADER_PIN_4, PINMUX_UART);
-	ret |= rc_pinmux_set(UART1_HEADER_PIN_3, PINMUX_UART);
-	ret |= rc_pinmux_set(UART1_HEADER_PIN_4, PINMUX_UART);
-
-	if (ret != 0) {
-		PX4_ERR("rc_init failed to set default pinmux");
-		return -1;
-	}
-	*/
-
-	// no direct equivalent of configure_gpio_pins()
-
-	if (rc_adc_init()) {
-		PX4_ERR("rc_init failed to run rc_adc_init()");
-		return -1;
-	}
-
 	if (rc_servo_init()) {  // Configures the PRU to send servo pulses
 		PX4_ERR("rc_init failed to run rc_servo_init()");
 		return -1;
@@ -108,33 +69,19 @@ int rc_init(void)
 		return -1;
 	}
 
-	//i2c, barometer and mpu will be initialized later
-
 	rc_set_state(RUNNING);
-#endif
 
 	return 0;
-#endif
 }
-
 
 void rc_cleaning(void)
 {
-#ifdef __RC_V0_3
-	rc_cleanup();  return ;
-#else
-#ifdef __DF_BBBLUE
-
 	if (rc_get_state() == EXITING) { return; }
 
 	rc_set_state(EXITING);
-
-	rc_adc_cleanup();
 
 	rc_servo_power_rail_en(0);
 	rc_servo_cleanup();
 
 	rc_remove_pid_file();
-#endif
-#endif
 }

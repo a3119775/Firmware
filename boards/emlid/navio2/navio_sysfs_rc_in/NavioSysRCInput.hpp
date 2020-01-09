@@ -70,11 +70,9 @@ private:
 
 	uORB::PublicationMulti<input_rc_s> _input_rc_pub{ORB_ID(input_rc)};
 
-	int _channels{8};	// D8R-II plus
-	int _ch_fd[input_rc_s::RC_INPUT_MAX_CHANNELS] {};
-
-	input_rc_s _data{};
-
+	static constexpr int CHANNELS{14};
+	int _channel_fd[CHANNELS] {};
+	int _connected_fd{-1};
 };
 
 }; // namespace navio_sysfs_rc_in
